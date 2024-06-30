@@ -1,15 +1,14 @@
 import os
 import chainlit as cl
 from literalai import LiteralClient
+from dotenv import load_dotenv
+from decouple import config
 from autogen import AssistantAgent, UserProxyAgent
 
 from v1o6 import start_chat_v1o6
 from v1o7 import start_chat_v1o7
 
-os.environ["OPENAI_API_KEY"] = "sk-aansh-intern-f0FciSLn7mNWVNK2nSMnT3BlbkFJSCJXNGCWhwBKSg3Ozr6x"
-os.environ["AUTOGEN_USE_DOCKER"] = "False"
-os.environ["LITERAL_API_KEY"] = "lsk_G8guoyXlfwdzeujAcGg480Sfg9WaUBYmwTlct9NeEEk"
-os.environ["CHAINLIT_AUTH_SECRET"] = "X:eEh1.$DqCz6l34C8~UF7RKdyAlolE_%qg*6.Ju-?oG4Y?uQ5sAGu*fd^o>Bz~~"
+load_dotenv()
 
 literal_client = LiteralClient(api_key=os.environ.get("LITERAL_API_KEY"))
 
