@@ -3,7 +3,7 @@ services:
     image: python:3.10
     command: |
       pip install -r requirements.txt
-      chainlit run app.py -h 0.0.0.0 -p $PORT
+      chainlit run main.py -h 0.0.0.0 -p $PORT
     envs:
       - PORT
       - OPENAI_API_KEY
