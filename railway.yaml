@@ -1,0 +1,6 @@
+services:
+  web:
+    image: python:3.10
+    command: |
+      pip install -r requirements.txt
+      chainlit run main.py
