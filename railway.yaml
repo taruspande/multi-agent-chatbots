@@ -3,4 +3,10 @@ services:
     image: python:3.10
     command: |
       pip install -r requirements.txt
-      chainlit run main.py
+      chainlit run app.py -h 0.0.0.0 -p $PORT
+    envs:
+      - PORT
+      - OPENAI_API_KEY
+      - AUTOGEN_USE_DOCKER
+      - LITERAL_API_KEY
+      - CHAINLIT_AUTH_SECRET
