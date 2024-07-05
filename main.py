@@ -1,54 +1,27 @@
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from chainlit.utils import mount_chainlit
 import os
-import chainlit as cl
-from literalai import LiteralClient
-from dotenv import load_dotenv
-from decouple import config
-from autogen import AssistantAgent, UserProxyAgent
 
-from v1o6 import start_chat_v1o6
-from v1o7 import start_chat_v1o7
+app = FastAPI()
 
-load_dotenv()
+@app.get("/app")
+def read_main():
+    return {"message": "Hello World from main app"}
 
-literal_client = LiteralClient(api_key=os.environ.get("LITERAL_API_KEY"))
+# Serve static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@cl.password_auth_callback
-def auth_callback(username: str, password: str):
-    if (username, password) == ("admin", "admin"):
-        return cl.User(
-            identifier="admin", metadata={"role": "admin", "provider": "credentials"}
-        )
-    else:
-        return None
+# Ensure the root route is defined after mounting Chainlit to avoid overrides
+@app.get("/")
+async def get_custom_ui():
+    print("Serving custom UI")
+    return FileResponse(os.path.join(os.getcwd(), "index.html"))
 
-@cl.set_chat_profiles
-async def set_chat_profile():
-    return [
-        cl.ChatProfile(
-            name="Financial Assistant 2.0",
-            markdown_description="Financial Assistant 2.0",
-        ),
-        cl.ChatProfile(
-            name="Financial Assistant 1.0",
-            markdown_description="Financial Assistant 1.0",
-        ),
-    ]
+# Mount the Chainlit app
+mount_chainlit(app=app, target="app.py", path="/chainlit")
 
-
-@cl.on_chat_start
-async def on_chat_start():
-    chat_profile = cl.user_session.get("chat_profile")
-    await cl.Message(
-        content="Please type your investment thesis to get started.",
-        author='Financial Assistant'
-    ).send()
-
-
-@cl.on_message
-async def on_message(message):
-    chat_profile = cl.user_session.get("chat_profile")
-    message_content = message.content
-    if chat_profile == "Financial Assistant 1.0":
-        start_chat_v1o6(message_content)
-    elif chat_profile == "Financial Assistant 2.0":
-        start_chat_v1o7(message_content)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")

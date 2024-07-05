@@ -4,7 +4,7 @@ anyio==3.7.1
 asyncer==0.0.2
 bidict==0.23.1
 certifi==2024.6.2
-chainlit==1.1.202
+chainlit==1.1.306
 charset-normalizer==3.3.2
 chevron==0.14.0
 click==8.1.7
@@ -30,7 +30,7 @@ idna==3.7
 importlib_metadata==7.1.0
 kiwisolver==1.4.5
 Lazify==0.4.0
-literalai==0.0.601
+literalai==0.0.607
 marshmallow==3.21.2
 matplotlib==3.9.0
 mypy-extensions==1.0.0
