@@ -3,23 +3,18 @@ import autogen
 from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager, ConversableAgent
 from decouple import config
 import chainlit as cl
+import asyncio
 
-
-def chat_new_message(self, message, sender):
-    cl.run_sync(
-        cl.Message(
-            content="",
-            author=sender.name,
-        ).send()
-    )
+async def chat_new_message(self, message, sender):
+    await cl.Message(
+        content="",
+        author=sender.name,
+    ).send()
     content = message
-    cl.run_sync(
-        cl.Message(
-            content=content,
-            author=sender.name,
-        ).send()
-    )
-
+    await cl.Message(
+        content=content,
+        author=sender.name,
+    ).send()
 
 def config_personas():
     llm_config_1 = {
@@ -208,16 +203,15 @@ def config_personas():
 
     return Human_Admin, Prompt_Engineer, News_Finder, Critical_Thinker, Risk_Tolerant, Ethical_Investor, Value_Seeker, Data_Driven_Analyst, Dividend_Enthusiast, summarizer, admin, manager
 
-
-def start_chat_v1o6(message, is_test=False):
+async def start_chat_v1o6(message, is_test=False):
     if not is_test:
         UserProxyAgent._print_received_message = chat_new_message
         ConversableAgent._print_received_message = chat_new_message
         AssistantAgent._print_received_message = chat_new_message
     Human_Admin, Prompt_Engineer, News_Finder, Critical_Thinker, Risk_Tolerant, Ethical_Investor, Value_Seeker, Data_Driven_Analyst, Dividend_Enthusiast, summarizer, admin, manager = config_personas()
-    news_result = News_Finder.initiate_chat(Prompt_Engineer,max_turns = 2,message = message)
-    manager.initiate_chat(Critical_Thinker,message = f"The context regarding the financial news is {news_result.chat_history[2]['content']}")
+    news_result = await News_Finder.initiate_chat(Prompt_Engineer, max_turns=2, message=message)
+    await manager.initiate_chat(Critical_Thinker, message=f"The context regarding the financial news is {news_result.chat_history[2]['content']}")
 
 if __name__ == "__main__":
     test_message = ("Russia has declared war on Ukraine. Russia has also started invading Ukraine.")
-    start_chat_script(test_message, is_test=True)
+    asyncio.run(start_chat_v1o6(test_message, is_test=True))

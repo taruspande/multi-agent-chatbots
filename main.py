@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from chainlit.utils import mount_chainlit
@@ -13,11 +13,24 @@ def read_main():
 # Serve static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Ensure the root route is defined after mounting Chainlit to avoid overrides
+# Serve the custom HTML file
 @app.get("/")
 async def get_custom_ui():
     print("Serving custom UI")
     return FileResponse(os.path.join(os.getcwd(), "index.html"))
+
+# WebSocket endpoint for active agent updates
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await websocket.send_text(f"Active agent: {data}")
+    except Exception as e:
+        print(f"WebSocket connection error: {e}")
+    finally:
+        await websocket.close()
 
 # Mount the Chainlit app
 mount_chainlit(app=app, target="app.py", path="/chainlit")

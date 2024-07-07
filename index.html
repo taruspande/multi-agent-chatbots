@@ -15,8 +15,44 @@
             <!-- Content for top container -->
         </div>
         <div id="bottom-container">
-            <!-- Content for bottom container -->
+            <!-- Terminal for active agent -->
+            <div id="terminal" style="background-color: #f5f5f5; padding: 10px; border-top: 2px solid #ddd;">
+                Terminal (read-only)
+                <div id="active-agent">No active agent</div>
+            </div>
         </div>
     </div>
+    <script>
+        const ws = new WebSocket("ws://127.0.0.1:8000/ws");
+
+        ws.onopen = function(event) {
+            console.log("WebSocket connection established");
+        };
+
+        ws.onmessage = function(event) {
+            const data = event.data;
+            document.getElementById("active-agent").innerText = data;
+        };
+
+        ws.onclose = function(event) {
+            console.log("WebSocket connection closed", event);
+            document.getElementById("active-agent").innerText = "No active agent (disconnected)";
+        };
+
+        ws.onerror = function(event) {
+            console.error("WebSocket error observed:", event);
+        };
+
+        function updateActiveAgent(agentName) {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(agentName);
+            } else {
+                console.error("WebSocket is not open");
+            }
+        }
+
+        // Example usage, you would call this function from your Python code via WebSocket or an API
+        // updateActiveAgent("Prompt_Engineer");
+    </script>
 </body>
 </html>

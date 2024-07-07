@@ -3,13 +3,23 @@ import chainlit as cl
 from literalai import LiteralClient
 from dotenv import load_dotenv
 from decouple import config
+import asyncio
+import nest_asyncio
+import websockets
 
 from v1o6 import start_chat_v1o6
 from v1o7 import start_chat_v1o7
 
 load_dotenv()
 
+nest_asyncio.apply()
+
 literal_client = LiteralClient(api_key=os.environ.get("LITERAL_API_KEY"))
+
+async def notify_active_agent(agent_name):
+    uri = "ws://127.0.0.1:8000/ws"
+    async with websockets.connect(uri) as websocket:
+        await websocket.send(agent_name)
 
 @cl.password_auth_callback
 def auth_callback(username: str, password: str):
