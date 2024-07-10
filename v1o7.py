@@ -1,5 +1,4 @@
 import os
-import asyncio
 from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager, ConversableAgent
 from decouple import config
 import chainlit as cl
@@ -259,37 +258,42 @@ def config_personas():
 
 def get_prompt(prompt_engineer, input_message):
   prompt = prompt_engineer.generate_reply(messages=[{
-      "content": input_message,
-      "role": "user"
+      "content":input_message,
+      "role":"user"
   }])
+
   return prompt
 
 def get_context(context_finder, prompt):
   context = context_finder.generate_reply(messages=[{
-      "content": prompt,
-      "role": "user"
+      "content":prompt,
+      "role":"user"
   }])
+
   return context
 
 def start_discussion(planner, inputs):
   reply = planner.generate_reply(messages=[{
-      "content": inputs,
-      "role": "user"
+      "content":inputs,
+      "role":"user"
   }])
+
   return reply
 
 def get_summarized_list_of_assets(text_summarizer, input_message):
   summarized_list_of_assets = text_summarizer.generate_reply(messages=[{
-      "content": input_message,
-      "role": "user"
+      "content":input_message,
+      "role":"user"
   }])
+
   return summarized_list_of_assets
 
 def get_persona_votes(persona, input_message):
   votes = persona.generate_reply(messages=[{
-      "content": input_message,
-      "role": "user"
+      "content":input_message,
+      "role":"user"
   }])
+
   return votes
 
 def start_chat_v1o7(message, is_test=False):
@@ -300,35 +304,37 @@ def start_chat_v1o7(message, is_test=False):
         ConversableAgent._print_received_message = chat_new_message
         # AssistantAgent._print_received_message = chat_new_message
     Prompt_Engineer, Context_Finder, Critical_Thinker, Human_Admin, Planner, Planner_2, Critic, Text_Summarizer, Risk_Tolerant, Ethical_Investor, Value_Seeker, Data_Driven_Analyst, Dividend_Enthusiast, Vote_Summarizer = config_personas()
-    text = get_prompt(Prompt_Engineer, message)  # Assuming get_prompt is async
-    push_new_message(text, "Prompt Engineer")  # Assuming push_new_message is async
-    context = get_context(Context_Finder, text)  # Assuming get_context is async
+    text = get_prompt(Prompt_Engineer, message)
+    push_new_message(text, "Prompt Engineer")
+    context = get_context(Context_Finder, text)
     thinker_result = Human_Admin.initiate_chat(
         Critical_Thinker,
         message=f"The financial news I wanted to know about is:\n {context}",
         max_turns=6,
-        summary_method="reflection_with_llm",
+        summary_method = "reflection_with_llm",
     )
-    summary = thinker_result.summary
+    summary = (thinker_result.summary)
     push_new_message(summary, "Summary")
 
     input_mssg = f"The financial news about the current market conditions is {context}, and the user's investment choices are {summary}"
-    list_of_assets = start_discussion(Planner, input_mssg)  # Assuming start_discussion is async
+    list_of_assets = start_discussion(Planner, input_mssg)
     push_new_message(list_of_assets, "List of Assets:")
 
     chat_result = Planner_2.initiate_chat(
         Critic,
-        max_turns=3,
-        message=f"The context is {list_of_assets}",
+        max_turns = 3,
+        message = f"The context is {list_of_assets}",
         summary_method="reflection_with_llm",
     )
+
+    chat_result.chat_history
 
     planner_final = chat_result.chat_history[-2]['content']
     critic_final = chat_result.chat_history[-1]['content']
 
     pieces_of_text = f"The first piece of text is: \n {planner_final} \n The second piece of text is: \n {critic_final}"
     
-    summarized_list_of_assets = get_summarized_list_of_assets(Text_Summarizer, pieces_of_text)  # Assuming get_summarized_list_of_assets is async
+    summarized_list_of_assets = get_summarized_list_of_assets(Text_Summarizer, pieces_of_text)
     push_new_message(summarized_list_of_assets, "Summarized List of Assets:")
 
     votes_risk_tolerant = get_persona_votes(Risk_Tolerant, summarized_list_of_assets)
@@ -357,4 +363,4 @@ def start_chat_v1o7(message, is_test=False):
 
 if __name__ == "__main__":
     test_message = "Russia has declared war on Ukraine. Russia has also started invading Ukraine."
-    start_chat_v1o7(test_message, is_test=True)
+    start_chat_v107(test_message, is_test=True)
