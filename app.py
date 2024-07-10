@@ -12,7 +12,7 @@ from v1o7 import start_chat_v1o7
 
 load_dotenv()
 
-nest_asyncio.apply()
+nest_asyncio.apply() # Chainlit won't run without this (with FastAPI)
 
 literal_client = LiteralClient(api_key=os.environ.get("LITERAL_API_KEY"))
 

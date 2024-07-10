@@ -12,12 +12,18 @@
     </div>
     <div id="info-container">
         <div id="top-container">
-            <!-- Content for top container -->
+            <div class="feedback">
+                <h3>Feedback</h3>
+            </div>
+            <hr>
+            <textarea id="feedback-input" placeholder="Enter your feedback"></textarea>
+            <button type="submit" id="submit-feedback">Submit</button>
         </div>
         <div id="bottom-container">
             <!-- Terminal for active agent -->
-            <div id="terminal" style="background-color: #f5f5f5; padding: 10px; border-top: 2px solid #ddd;">
-                Terminal (read-only)
+            <div class="terminal">
+                <h3>Terminal (read-only)</h3>
+                <hr>
                 <div id="active-agent">No active agent</div>
             </div>
         </div>
@@ -50,9 +56,6 @@
                 console.error("WebSocket is not open");
             }
         }
-
-        // Example usage, you would call this function from your Python code via WebSocket or an API
-        // updateActiveAgent("Prompt_Engineer");
     </script>
 </body>
 </html>
