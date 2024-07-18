@@ -56,9 +56,11 @@
     <script>
         let activeAgentId = null;
 
-        // Dynamically set iframe src based on current protocol
-        const iframeSrc = window.location.protocol + '//' + window.location.host + '/chainlit';
-        document.getElementById('chainlit-app').src = iframeSrc;
+        document.addEventListener('DOMContentLoaded', function() {
+            var iframe = document.getElementById('chainlit-app');
+            var iframeSrc = `${window.location.protocol}//${window.location.host}/chainlit/`;
+            iframe.setAttribute('src', iframeSrc);
+        });
 
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const ws = new WebSocket(protocol + window.location.host + "/ws");
