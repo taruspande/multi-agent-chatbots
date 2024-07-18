@@ -58,7 +58,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             var iframe = document.getElementById('chainlit-app');
-            var iframeSrc = `${window.location.protocol}//${window.location.host}/chainlit/`;
+            var iframeSrc = `https://${window.location.host}/chainlit/`;
             iframe.setAttribute('src', iframeSrc);
         });
 
