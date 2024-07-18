@@ -23,6 +23,12 @@
         .static-dots span {
             opacity: 1;
         }
+        .terminal {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -39,7 +45,6 @@
             <button type="submit" id="submit-feedback">Submit</button>
         </div>
         <div id="bottom-container">
-            <!-- Terminal for active agent -->
             <div class="terminal">
                 <h3>Terminal (read-only)</h3>
                 <hr>
@@ -50,7 +55,8 @@
     <script>
         let activeAgentId = null;
 
-        const ws = new WebSocket("ws://127.0.0.1:8000/ws");
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const ws = new WebSocket(protocol + window.location.host + "/ws");
 
         ws.onopen = function(event) {
             console.log("WebSocket connection established");

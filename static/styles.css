@@ -61,13 +61,3 @@ body {
     background-color: #afafaf;
     color: #303030;
 }
-
-.terminal {
-    height: 200px; /* Fixed height */
-    overflow-y: auto; /* Scroll when content overflows */
-    background-color: #f5f5f5;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    color: #303030;
-}

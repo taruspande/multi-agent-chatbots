@@ -1,9 +1,8 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from chainlit.utils import mount_chainlit
 import os
-import asyncio
 
 app = FastAPI()
 
@@ -32,18 +31,19 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_text()
             print(f"Received data: {data}")  # Debug log
             for ws in connected_websockets:
-                await ws.send_text(f"Active agent: {data}")
-    except WebSocketDisconnect:
-        print("WebSocket connection closed")
-        connected_websockets.remove(websocket)
+                await ws.send_text(data)
     except Exception as e:
         print(f"WebSocket connection error: {e}")
+    finally:
+        connected_websockets.remove(websocket)
+        await websocket.close()
 
 async def broadcast_active_agent(agent_name: str):
     print(f"Broadcasting active agent: {agent_name}")  # Debug log
     for websocket in connected_websockets:
-        await websocket.send_text(f"{agent_name}")
+        await websocket.send_text(agent_name)
 
+# Define notify_active_agent
 async def notify_active_agent(agent_name: str):
     await broadcast_active_agent(agent_name)
 
