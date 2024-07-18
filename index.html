@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Chainlit UI</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .blinking-dots span {
+            animation: blink 1.5s infinite;
+        }
+        .blinking-dots span:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        .blinking-dots span:nth-child(3) {
+            animation-delay: 1s;
+        }
+        .static-dots span {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
     <div id="chat-container">
@@ -29,6 +48,8 @@
         </div>
     </div>
     <script>
+        let activeAgentId = null;
+
         const ws = new WebSocket("ws://127.0.0.1:8000/ws");
 
         ws.onopen = function(event) {
@@ -37,25 +58,49 @@
 
         ws.onmessage = function(event) {
             const data = event.data;
-            document.getElementById("active-agent").innerText = data;
+            console.log(`Received data: ${data}`);  // Debug log
+            const terminal = document.getElementById("active-agent");
+
+            // Remove the "No active agent (disconnected)" message
+            if (terminal.innerText.includes("No active agent")) {
+                terminal.innerHTML = "";
+            }
+
+            // Create a new div for the new active agent
+            const newAgentDiv = document.createElement("div");
+            newAgentDiv.innerHTML = `${data} is thinking<span class="blinking-dots">
+                <span>.</span><span>.</span><span>.</span>
+            </span>`;
+            newAgentDiv.id = `agent-${data}`;
+
+            // Replace the previous agent's dots with static text
+            if (activeAgentId) {
+                const oldAgentDiv = document.getElementById(activeAgentId);
+                if (oldAgentDiv) {
+                    const blinkingDots = oldAgentDiv.querySelector('.blinking-dots');
+                    if (blinkingDots) {
+                        blinkingDots.classList.remove('blinking-dots');
+                        blinkingDots.classList.add('static-dots');
+                    }
+                }
+            }
+
+            // Set the new agent as the active agent
+            activeAgentId = `agent-${data}`;
+            terminal.appendChild(newAgentDiv);
+            // Scroll to the bottom of the terminal
+            terminal.scrollTop = terminal.scrollHeight;
         };
 
         ws.onclose = function(event) {
             console.log("WebSocket connection closed", event);
-            document.getElementById("active-agent").innerText = "No active agent (disconnected)";
+            const terminal = document.getElementById("active-agent");
+            terminal.innerHTML += `<div>No active agent (disconnected)</div>`;
         };
 
         ws.onerror = function(event) {
             console.error("WebSocket error observed:", event);
         };
-
-        function updateActiveAgent(agentName) {
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(agentName);
-            } else {
-                console.error("WebSocket is not open");
-            }
-        }
     </script>
 </body>
 </html>

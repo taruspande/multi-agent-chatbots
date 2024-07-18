@@ -5,21 +5,17 @@ from dotenv import load_dotenv
 from decouple import config
 import asyncio
 import nest_asyncio
-import websockets
 
 from v1o6 import start_chat_v1o6
 from v1o7 import start_chat_v1o7
 
 load_dotenv()
-
-nest_asyncio.apply() # Chainlit won't run without this (with FastAPI)
+nest_asyncio.apply()  # Chainlit won't run without this (with FastAPI)
 
 literal_client = LiteralClient(api_key=os.environ.get("LITERAL_API_KEY"))
 
-async def notify_active_agent(agent_name):
-    uri = "ws://127.0.0.1:8000/ws"
-    async with websockets.connect(uri) as websocket:
-        await websocket.send(agent_name)
+# Import the notify_active_agent function from main.py
+from main import notify_active_agent
 
 @cl.password_auth_callback
 def auth_callback(username: str, password: str):
@@ -51,11 +47,19 @@ async def on_chat_start():
         author='Financial Assistant'
     ).send()
 
+# Modify this function to broadcast each agent's name
 @cl.on_message
 async def on_message(message):
     chat_profile = cl.user_session.get("chat_profile")
     message_content = message.content
     if chat_profile == "Financial Assistant 1.0":
+        await notify_active_agent("Prompt_Engineer")
         start_chat_v1o6(message_content)
     elif chat_profile == "Financial Assistant 2.0":
+        await notify_active_agent("Prompt_Engineer")
         start_chat_v1o7(message_content)
+
+# Example functions to handle multiple agents
+async def agent_responding(agent_name: str):
+    await notify_active_agent(agent_name)
+

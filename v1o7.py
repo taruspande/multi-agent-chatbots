@@ -8,6 +8,11 @@ from autogen.coding import LocalCommandLineCodeExecutor
 import random
 import matplotlib.pyplot as plt
 import networkx as nx
+import asyncio
+import nest_asyncio
+from main import notify_active_agent
+
+nest_asyncio.apply()
 
 def chat_new_message(self, message, sender):
     if sender.name == "human_admin":
@@ -296,6 +301,74 @@ def get_persona_votes(persona, input_message):
 
   return votes
 
+async def agent_responding(agent_name: str):
+    await notify_active_agent(agent_name)
+
+# def start_chat_v1o7(message, is_test=False):
+#     if not is_test:
+#         UserProxyAgent.get_human_input = ask_human
+#         ConversableAgent.get_human_input = ask_human
+#         AssistantAgent.get_human_input = ask_human
+#         ConversableAgent._print_received_message = chat_new_message
+#         # AssistantAgent._print_received_message = chat_new_message
+#     Prompt_Engineer, Context_Finder, Critical_Thinker, Human_Admin, Planner, Planner_2, Critic, Text_Summarizer, Risk_Tolerant, Ethical_Investor, Value_Seeker, Data_Driven_Analyst, Dividend_Enthusiast, Vote_Summarizer = config_personas()
+#     text = get_prompt(Prompt_Engineer, message)
+#     push_new_message(text, "Prompt Engineer")
+#     context = get_context(Context_Finder, text)
+#     thinker_result = Human_Admin.initiate_chat(
+#         Critical_Thinker,
+#         message=f"The financial news I wanted to know about is:\n {context}",
+#         max_turns=6,
+#         summary_method = "reflection_with_llm",
+#     )
+#     summary = (thinker_result.summary)
+#     push_new_message(summary, "Summary")
+
+#     input_mssg = f"The financial news about the current market conditions is {context}, and the user's investment choices are {summary}"
+#     list_of_assets = start_discussion(Planner, input_mssg)
+#     push_new_message(list_of_assets, "List of Assets:")
+
+#     chat_result = Planner_2.initiate_chat(
+#         Critic,
+#         max_turns = 3,
+#         message = f"The context is {list_of_assets}",
+#         summary_method="reflection_with_llm",
+#     )
+
+#     chat_result.chat_history
+
+#     planner_final = chat_result.chat_history[-2]['content']
+#     critic_final = chat_result.chat_history[-1]['content']
+
+#     pieces_of_text = f"The first piece of text is: \n {planner_final} \n The second piece of text is: \n {critic_final}"
+    
+#     summarized_list_of_assets = get_summarized_list_of_assets(Text_Summarizer, pieces_of_text)
+#     push_new_message(summarized_list_of_assets, "Summarized List of Assets:")
+
+#     votes_risk_tolerant = get_persona_votes(Risk_Tolerant, summarized_list_of_assets)
+#     push_new_message(votes_risk_tolerant, "Votes of Risk Tolerant")
+
+#     votes_ethical_investor = get_persona_votes(Ethical_Investor, summarized_list_of_assets)
+#     push_new_message(votes_ethical_investor, "Votes of Ethical Investor")
+
+#     votes_value_seeker = get_persona_votes(Value_Seeker, summarized_list_of_assets)
+#     push_new_message(votes_value_seeker, "Votes of Value Seeker")
+
+#     votes_data_driven_analyst = get_persona_votes(Data_Driven_Analyst, summarized_list_of_assets)
+#     push_new_message(votes_data_driven_analyst, "Votes of Data Driven Analyst")
+
+#     votes_dividend_enthusiast = get_persona_votes(Dividend_Enthusiast, summarized_list_of_assets)
+#     push_new_message(votes_dividend_enthusiast, "Votes of Dividend Enthusiast")
+
+#     input_message_to_vote_summarizer = f"""The 1st set of votes go to:\n {votes_risk_tolerant} \n
+#                                        The 2nd set of votes go to:\n {votes_ethical_investor} \n
+#                                        The 3rd set of votes go to: \n {votes_value_seeker} \n
+#                                        The 4th set of votes go to: \n {votes_data_driven_analyst} \n
+#                                        The 5th set of votes go to: \n {votes_dividend_enthusiast} \n
+#                                     """
+#     vote_summary = get_persona_votes(Vote_Summarizer, input_message_to_vote_summarizer)
+#     push_new_message(vote_summary, "Vote Summary")
+
 def start_chat_v1o7(message, is_test=False):
     if not is_test:
         UserProxyAgent.get_human_input = ask_human
@@ -303,27 +376,37 @@ def start_chat_v1o7(message, is_test=False):
         AssistantAgent.get_human_input = ask_human
         ConversableAgent._print_received_message = chat_new_message
         # AssistantAgent._print_received_message = chat_new_message
+
     Prompt_Engineer, Context_Finder, Critical_Thinker, Human_Admin, Planner, Planner_2, Critic, Text_Summarizer, Risk_Tolerant, Ethical_Investor, Value_Seeker, Data_Driven_Analyst, Dividend_Enthusiast, Vote_Summarizer = config_personas()
+
+    # Notify the active agent
+    asyncio.create_task(agent_responding("Prompt_Engineer"))
     text = get_prompt(Prompt_Engineer, message)
     push_new_message(text, "Prompt Engineer")
+
+    asyncio.create_task(agent_responding("Context_Finder"))
     context = get_context(Context_Finder, text)
+
+    asyncio.create_task(agent_responding("Critical_Thinker"))
     thinker_result = Human_Admin.initiate_chat(
         Critical_Thinker,
         message=f"The financial news I wanted to know about is:\n {context}",
         max_turns=6,
-        summary_method = "reflection_with_llm",
+        summary_method="reflection_with_llm",
     )
-    summary = (thinker_result.summary)
+    summary = thinker_result.summary
     push_new_message(summary, "Summary")
 
+    asyncio.create_task(agent_responding("Planner"))
     input_mssg = f"The financial news about the current market conditions is {context}, and the user's investment choices are {summary}"
     list_of_assets = start_discussion(Planner, input_mssg)
     push_new_message(list_of_assets, "List of Assets:")
 
+    asyncio.create_task(agent_responding("Planner_2"))
     chat_result = Planner_2.initiate_chat(
         Critic,
-        max_turns = 3,
-        message = f"The context is {list_of_assets}",
+        max_turns=3,
+        message=f"The context is {list_of_assets}",
         summary_method="reflection_with_llm",
     )
 
@@ -332,26 +415,32 @@ def start_chat_v1o7(message, is_test=False):
     planner_final = chat_result.chat_history[-2]['content']
     critic_final = chat_result.chat_history[-1]['content']
 
+    asyncio.create_task(agent_responding("Text_Summarizer"))
     pieces_of_text = f"The first piece of text is: \n {planner_final} \n The second piece of text is: \n {critic_final}"
-    
     summarized_list_of_assets = get_summarized_list_of_assets(Text_Summarizer, pieces_of_text)
     push_new_message(summarized_list_of_assets, "Summarized List of Assets:")
 
+    asyncio.create_task(agent_responding("Risk_Tolerant"))
     votes_risk_tolerant = get_persona_votes(Risk_Tolerant, summarized_list_of_assets)
     push_new_message(votes_risk_tolerant, "Votes of Risk Tolerant")
 
+    asyncio.create_task(agent_responding("Ethical_Investor"))
     votes_ethical_investor = get_persona_votes(Ethical_Investor, summarized_list_of_assets)
     push_new_message(votes_ethical_investor, "Votes of Ethical Investor")
 
+    asyncio.create_task(agent_responding("Value_Seeker"))
     votes_value_seeker = get_persona_votes(Value_Seeker, summarized_list_of_assets)
     push_new_message(votes_value_seeker, "Votes of Value Seeker")
 
+    asyncio.create_task(agent_responding("Data_Driven_Analyst"))
     votes_data_driven_analyst = get_persona_votes(Data_Driven_Analyst, summarized_list_of_assets)
     push_new_message(votes_data_driven_analyst, "Votes of Data Driven Analyst")
 
+    asyncio.create_task(agent_responding("Dividend_Enthusiast"))
     votes_dividend_enthusiast = get_persona_votes(Dividend_Enthusiast, summarized_list_of_assets)
     push_new_message(votes_dividend_enthusiast, "Votes of Dividend Enthusiast")
 
+    asyncio.create_task(agent_responding("Vote_Summarizer"))
     input_message_to_vote_summarizer = f"""The 1st set of votes go to:\n {votes_risk_tolerant} \n
                                        The 2nd set of votes go to:\n {votes_ethical_investor} \n
                                        The 3rd set of votes go to: \n {votes_value_seeker} \n
@@ -363,4 +452,8 @@ def start_chat_v1o7(message, is_test=False):
 
 if __name__ == "__main__":
     test_message = "Russia has declared war on Ukraine. Russia has also started invading Ukraine."
-    start_chat_v107(test_message, is_test=True)
+    start_chat_v1o7(test_message, is_test=True)
+
+if __name__ == "__main__":
+    test_message = "Russia has declared war on Ukraine. Russia has also started invading Ukraine."
+    start_chat_v1o7(test_message, is_test=True)
