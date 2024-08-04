@@ -7,6 +7,7 @@ from autogen import AssistantAgent, UserProxyAgent
 
 from v1o6 import start_chat_v1o6
 from v1o7 import start_chat_v1o7
+from v1o8 import start_chat_v1o8
 
 load_dotenv()
 
@@ -24,6 +25,10 @@ def auth_callback(username: str, password: str):
 @cl.set_chat_profiles
 async def set_chat_profile():
     return [
+         cl.ChatProfile(
+            name="Financial Assistant 3.0",
+            markdown_description="Financial Assistant 3.0",
+        ),
         cl.ChatProfile(
             name="Financial Assistant 2.0",
             markdown_description="Financial Assistant 2.0",
@@ -52,3 +57,5 @@ async def on_message(message):
         start_chat_v1o6(message_content)
     elif chat_profile == "Financial Assistant 2.0":
         start_chat_v1o7(message_content)
+    elif chat_profile == "Financial Assistant 3.0":
+        start_chat_v1o8(message_content)

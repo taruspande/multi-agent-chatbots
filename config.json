@@ -1,0 +1,18 @@
+{
+    "num_layers" : 3,
+    "Layer_1":{
+        "num_agents" : 3,
+        "Agent_1": ["llama", 0.7],
+        "Agent_2": ["mistral", 0.8],
+        "Agent_3": ["dbrx", 0.1]
+    },
+    "Layer_2":{
+        "num_agents": 1,
+        "Agent_1": ["mistral", 0.5]
+    },
+    "Layer_3":{
+        "num_agents": 2,
+        "Agent_1": ["llama", 0.5],
+        "Agent_2": ["dbrx", 1]
+    }
+}
